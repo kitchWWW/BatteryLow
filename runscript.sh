@@ -1,9 +1,7 @@
 #!/bin/bash
-rm out.ly
-rm out.pdf
+python make.py $1 $2 $3 $4
+cd out/$1
 
-python make.py
+lilypond score.ly
+open score.pdf
 
-lilypond out.ly
-
-open out.pdf

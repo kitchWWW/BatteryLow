@@ -1,9 +1,11 @@
 import random
+import sys
+import os
 
-
-lowNote = 53
-highNote = 89
-howLong = 7 # 1 = 6 ish minutes, 8 = 12 ish # ZERO IS OUT OF BOUNDS
+timestamp = str(sys.argv[1])
+lowNote = int(sys.argv[2])
+highNote = int(sys.argv[3])
+howLong = int(sys.argv[4]) # 1 = 6 ish minutes, 8 = 12 ish # ZERO IS OUT OF BOUNDS
 
 # TODO : take this in as arguments
 
@@ -177,7 +179,8 @@ def genNote(myInt):
 
 
 fd = open("graphicScore.ly")
-fdo = open("out.ly",'w')
+os.mkdir("out/"+timestamp)
+fdo = open("out/"+timestamp+"/score.ly",'w')
 
 fdtemplate = open("basicPart.ly")
 scoreTemplate = "".join(fdtemplate.readlines())
@@ -247,7 +250,7 @@ def QToLet(qnumber):
 
 
 
-fdQ = open("qlisto.txt",'w')
+fdQ = open("out/"+timestamp+"/qlisto.txt",'w')
 fdQ.write('status "q list loaded";\n')
 
 for i in range(len(usingThisTime)):
