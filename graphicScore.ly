@@ -15,7 +15,7 @@
 title =\markup { 
          \override #'(font-name . "Avenir Light")
 		\fontsize #5 
-         "My battery is low and it is getting dark" }
+         "My Battery Is Low And It Is Getting Dark" }
 subtitle ="  "
 subsubtitle =  \markup { 
          \override #'(font-name . "Avenir Light")
