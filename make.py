@@ -250,7 +250,7 @@ def QToLet(qnumber):
 
 
 
-fdQ = open("out/"+timestamp+"/qlisto.txt",'w')
+fdQ = open("out/"+timestamp+"/qlist.txt",'w')
 fdQ.write('status "q list loaded";\n')
 
 for i in range(len(usingThisTime)):
