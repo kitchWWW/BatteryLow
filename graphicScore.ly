@@ -18,6 +18,11 @@ title =\markup {
          "My Battery Is Low And It Is Getting Dark" }
 subtitle ="  "
 dedication=\markup{\column{\italic{"Commissioned as part of the Electronic Integration Project by Jordan Walsh"} "  " }}
+subtitle = \markup{
+         \override #'(font-name . "Avenir Light")
+		\fontsize #-1
+         "id: %TIMESTAMP" }
+
 subsubtitle =  \markup { 
          \override #'(font-name . "Avenir Light")
 		\fontsize #3 
@@ -35,8 +40,6 @@ composer = \markup {
 arranger = "   "
 }
 
-
-\override #'(font-series . medium)
 
 \markup{
 \concat{

@@ -9,6 +9,10 @@ howLong = int(sys.argv[4]) # 1 = 6 ish minutes, 8 = 12 ish # ZERO IS OUT OF BOUN
 
 # TODO : take this in as arguments
 
+def writecom(fd,com):
+	fd.write("comment \"==========================================\";\n")
+	fd.write("comment \""+com+"\";\n")
+	fd.write("comment \"==========================================\";\n")
 
 # veryify range of insturment
 pitchClass = [0,2,4,5,7,9,11]
@@ -26,8 +30,6 @@ options = [[],[],[],[],[],[],[]]
 for i in range(lowNote,highNote+1):
 	if i%12 in pitchClass:
 		options[pitchClass.index(i%12)].append(i)
-print "options"
-print options
 
 goodToGo = False
 while not goodToGo:
@@ -44,19 +46,12 @@ while not goodToGo:
 		dist = (abs(usingThisTime[i] - usingThisTime[i+1]))
 		if dist < 3:
 			goodToGo = False
-	print dist
-print "pitches"
-print usingThisTime
-
-
-
 
 # Select which notes to be played with what side of stick
 loud = []
 goodToGo = False
 while not goodToGo:
 	playNormal = 1 + (len(usingThisTime)/2)
-	print playNormal
 	if playNormal < 5:
 		playNormal = 5
 
@@ -90,9 +85,6 @@ print "loud"
 print(loud)
 print "final three soft"
 print finalThreeSoft
-
-
-
 
 
 
@@ -179,7 +171,11 @@ def genNote(myInt):
 
 
 fd = open("graphicScore.ly")
-os.mkdir("out/"+timestamp)
+try:
+	os.mkdir("out/"+timestamp)
+except:
+	os.system("rm -rf out/"+timestamp)
+	os.mkdir("out/"+timestamp)
 fdo = open("out/"+timestamp+"/score.ly",'w')
 
 fdtemplate = open("basicPart.ly")
@@ -199,6 +195,7 @@ for l in fd.readlines():
 		l = l.replace("%vspace",'#2')
 	else:
 		l = l.replace("%vspace",'#1')
+	l = l.replace("%TIMESTAMP",str(timestamp))
 
 	if l.startswith("%score"):
 		if scoreCount < len(usingThisTime):
@@ -249,14 +246,16 @@ def QToLet(qnumber):
 	return chr(65+qnumber)
 
 
-
 fdQ = open("out/"+timestamp+"/qlist.txt",'w')
 fdQ.write('status "q list loaded";\n')
+writecom(fdQ,"Starting QList out with timestamp: "+timestamp)
 
 for i in range(len(usingThisTime)):
 	q = QToLet(i)
 	fdQ.write("mt"+q+" vol 0;\n")
+	fdQ.write("mt"+q+" pitch 1;\n")
 	fdQ.write("mt"+q+" rec 0;\n")
+	fdQ.write("mt"+q+" dir 1;\n")
 	fdQ.write("mt"+q+" clear;\n")
 
 fdQ.write("""v21 .5;
@@ -274,21 +273,28 @@ for i in range(len(usingThisTime)):
 	if i > 0:
 		fdQ.write("mt"+QToLet(i-1)+" vol .7 15000;\n")
 	fdQ.write("mt"+q+" rec 1;\n")
-	fdQ.write('status "recording on '+q+'";\n')
+	fdQ.write('status "recording on '+str(i+1)+'";\n')
 	fdQ.write('qcontrol 10000;\n')
 	fdQ.write('1'+str(i)+'0;\n')
-	fdQ.write("mt"+q+" vol 1 8000;\n")
+	fdQ.write("mt"+q+" vol .9 8000;\n")
+	if i == len(usingThisTime)-4:
+		fdQ.write('v21 .1 15000;\n')
+	if i == len(usingThisTime)-3:
+		fdQ.write('v21 .5 5000;\n')
 	if i == finalThreeSoft[2]:
+		writecom(fdQ,"i == final three soft [2]")
 		fdQ.write("mt"+QToLet(finalThreeSoft[0])+" vol .8 8000;\n")
 		fdQ.write("mt"+QToLet(finalThreeSoft[1])+" vol .8 8000;\n")
 		fdQ.write("mt"+QToLet(finalThreeSoft[0])+" dir 0;\n")
 		fdQ.write("mt"+QToLet(finalThreeSoft[1])+" dir 0;\n")
 	if i == finalThreeSoft[2]+1:
+		writecom(fdQ,"i == final three soft [2] +1")
 		fdQ.write("mt"+QToLet(finalThreeSoft[0])+" vol .3 15000;\n")
 		fdQ.write("mt"+QToLet(finalThreeSoft[1])+" vol .3 15000;\n")
 		fdQ.write("mt"+QToLet(finalThreeSoft[0])+" dir 1;\n")
 		fdQ.write("mt"+QToLet(finalThreeSoft[1])+" dir 1;\n")
 	if i == len(usingThisTime)-2:
+		writecom(fdQ,"i == len using this time -2")
 		fdQ.write("mt"+QToLet(loud[0])+" vol .8 15000;\n")
 		fdQ.write("mt"+QToLet(loud[1])+" vol .8 15000;\n")
 	if i == len(usingThisTime)-1:
@@ -298,7 +304,39 @@ for i in range(len(usingThisTime)):
 		fdQ.write("mt"+QToLet(loud[1])+" vol .5 15000;\n")
 		fdQ.write("mt"+QToLet(loud[2])+" vol .8 15000;\n")
 		fdQ.write("mt"+QToLet(loud[3])+" vol .8 15000;\n")
-	fdQ.write('status "done recording on '+q+'";\n')
+	if i < len(usingThisTime)-1:
+		fdQ.write('status "ready to record '+str(i+2)+'";\n')
+	else:
+		fdQ.write('status "NEXT PEDAL ENDS PIECE";\n')
+
+	# do "one strange thing" each time, but only after the first few
+	# index of the strange thing to do:
+	specialCounter = 0
+	if i > 0:
+		orderOfSpecialThings = [4,2,1,3,0]
+		# index of the thing to change:
+		indexOfSpecial = random.randint(0,i-1)
+		#special things you can do:
+		# 0 -> mute
+		# 1 -> full volume
+		# 2 -> pitch shift up
+		# 3 -> pitch shift down
+		# 4 -> set dir to 0
+		randomToDo = orderOfSpecialThings[specialCounter% len(orderOfSpecialThings)]
+		specialCounter += 1
+		if randomToDo == 0:
+			fdQ.write("mt"+QToLet(indexOfSpecial)+" vol 0 500;\n")
+		elif randomToDo == 1:
+			fdQ.write("mt"+QToLet(indexOfSpecial)+" vol .7 1500;\n")
+		elif randomToDo == 2:
+			fdQ.write("mt"+QToLet(indexOfSpecial)+" pitch .25 15000;\n")
+		elif randomToDo == 3:
+			fdQ.write("mt"+QToLet(indexOfSpecial)+" pitch 4 15000;\n")
+		elif randomToDo == 4:
+			fdQ.write("mt"+QToLet(indexOfSpecial)+" dir 0;\n")
+		writecom(fdQ,"doing a strange thing: "+str(indexOfSpecial)+", "+str(randomToDo))
+
+
 	fdQ.write('1'+str(i)+'1;\n')
 
 
