@@ -266,6 +266,8 @@ v21 1 600000;
 
 """)
 
+specialCounter = 0
+
 for i in range(len(usingThisTime)):
 	q = QToLet(i)
 	if i > 1:
@@ -311,7 +313,6 @@ for i in range(len(usingThisTime)):
 
 	# do "one strange thing" each time, but only after the first few
 	# index of the strange thing to do:
-	specialCounter = 0
 	if i > 0:
 		orderOfSpecialThings = [4,2,1,3,0]
 		# index of the thing to change:
@@ -323,7 +324,7 @@ for i in range(len(usingThisTime)):
 		# 3 -> pitch shift down
 		# 4 -> set dir to 0
 		randomToDo = orderOfSpecialThings[specialCounter% len(orderOfSpecialThings)]
-		specialCounter += 1
+		specialCounter = specialCounter+1
 		if randomToDo == 0:
 			fdQ.write("mt"+QToLet(indexOfSpecial)+" vol 0 500;\n")
 		elif randomToDo == 1:
